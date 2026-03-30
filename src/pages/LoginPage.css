@@ -1,0 +1,417 @@
+/* ═══════════════════════════════════════════════════════════
+   Autodesk OAuth — Immersive Login Page
+   ═══════════════════════════════════════════════════════════ */
+
+.login-root {
+  position: fixed;
+  inset: 0;
+  background: #040815;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── Canvas particle layer ───────────────────────────────────── */
+.login-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Perspective grid ────────────────────────────────────────── */
+.login-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(6, 150, 215, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 150, 215, 0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Ambient glow orbs ───────────────────────────────────────── */
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(1px);
+}
+
+.glow-orb-1 {
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(6, 150, 215, 0.28) 0%, transparent 68%);
+  top: -280px;
+  left: -180px;
+  animation: orb1 14s ease-in-out infinite;
+}
+
+.glow-orb-2 {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(90, 50, 255, 0.22) 0%, transparent 65%);
+  bottom: -120px;
+  right: -120px;
+  animation: orb2 17s ease-in-out infinite;
+}
+
+.glow-orb-3 {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(0, 199, 255, 0.18) 0%, transparent 65%);
+  bottom: 15%;
+  left: 8%;
+  animation: orb3 11s ease-in-out infinite;
+}
+
+.glow-orb-4 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 100, 50, 0.1) 0%, transparent 65%);
+  top: 20%;
+  right: 15%;
+  animation: orb4 9s ease-in-out infinite;
+}
+
+@keyframes orb1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(50px, 35px) scale(1.05); }
+  66%       { transform: translate(-25px, 55px) scale(0.97); }
+}
+@keyframes orb2 {
+  0%, 100% { transform: translate(0, 0); }
+  50%       { transform: translate(-40px, -45px); }
+}
+@keyframes orb3 {
+  0%, 100% { transform: translate(0, 0); }
+  50%       { transform: translate(25px, -30px); }
+}
+@keyframes orb4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-20px, 20px) scale(1.1); }
+}
+
+/* ── Floating tech tags ──────────────────────────────────────── */
+.floating-tag {
+  position: absolute;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none;
+  z-index: 5;
+  white-space: nowrap;
+  animation: float-tag 7s ease-in-out infinite;
+}
+
+.floating-tag-1 { top: 14%;  left: 7%;   animation-delay: 0s;    animation-duration: 7s; }
+.floating-tag-2 { top: 22%;  right: 7%;  animation-delay: -2.5s; animation-duration: 9s; }
+.floating-tag-3 { bottom: 22%; left: 6%; animation-delay: -4s;   animation-duration: 8s; }
+.floating-tag-4 { bottom: 14%; right: 9%;animation-delay: -1.5s; animation-duration: 6s; }
+
+@keyframes float-tag {
+  0%, 100% { transform: translateY(0px);  opacity: 0.45; }
+  50%       { transform: translateY(-9px); opacity: 0.75; }
+}
+
+/* ══ Login Card ════════════════════════════════════════════════ */
+.login-card {
+  position: relative;
+  z-index: 10;
+  width: 448px;
+  max-width: calc(100vw - 32px);
+  background: rgba(255, 255, 255, 0.028);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(6, 150, 215, 0.18);
+  border-radius: 24px;
+  padding: 44px 40px 40px;
+  box-shadow:
+    0 0 0 1px rgba(6, 150, 215, 0.06),
+    0 24px 72px rgba(0, 0, 0, 0.55),
+    0 0 140px rgba(6, 150, 215, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  animation: card-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* animated border on hover */
+.login-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(6, 150, 215, 0.4) 0%,
+    transparent 45%,
+    rgba(90, 50, 255, 0.25) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.login-card:hover::before { opacity: 1; }
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(28px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ── Logo area ───────────────────────────────────────────────── */
+.login-logo-area {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.login-logo-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #0696D7 0%, #0450A0 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow:
+    0 6px 24px rgba(6, 150, 215, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.login-logo-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.login-logo-text .brand {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  background: linear-gradient(135deg, #ffffff 40%, #68C9F0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.login-logo-text .product {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── Title & Subtitle ────────────────────────────────────────── */
+.login-title {
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.5px !important;
+  color: #ffffff !important;
+  margin: 0 0 8px !important;
+  line-height: 1.25 !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: none !important;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.42);
+  margin: 0 0 28px;
+  line-height: 1.6;
+}
+
+/* ── Divider ─────────────────────────────────────────────────── */
+.login-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(6, 150, 215, 0.3) 50%, transparent);
+  margin-bottom: 24px;
+}
+
+/* ── Scope badges ────────────────────────────────────────────── */
+.scope-section { margin-bottom: 28px; }
+
+.scope-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.28);
+  margin-bottom: 10px;
+}
+
+.scope-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.scope-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(6, 150, 215, 0.09);
+  border: 1px solid rgba(6, 150, 215, 0.22);
+  color: rgba(100, 210, 255, 0.82);
+  font-family: ui-monospace, Consolas, monospace;
+  letter-spacing: 0.1px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.scope-badge:hover {
+  background: rgba(6, 150, 215, 0.18);
+  border-color: rgba(6, 150, 215, 0.45);
+}
+
+/* ── Login Button ────────────────────────────────────────────── */
+.login-btn {
+  width: 100%;
+  padding: 15px 24px;
+  background: linear-gradient(135deg, #0696D7 0%, #0560B5 100%);
+  border: none;
+  border-radius: 13px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow:
+    0 4px 24px rgba(6, 150, 215, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* top-left shine */
+.login-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, transparent 55%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* ripple layer */
+.login-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0);
+  transition: background 0.3s;
+  border-radius: inherit;
+}
+
+.login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 36px rgba(6, 150, 215, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.login-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 12px rgba(6, 150, 215, 0.3);
+}
+
+.login-btn:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btn-arrow {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.login-btn:hover:not(:disabled) .btn-arrow {
+  transform: translateX(4px);
+}
+
+/* ── Spinner ─────────────────────────────────────────────────── */
+.btn-spinner {
+  width: 17px;
+  height: 17px;
+  border: 2.5px solid rgba(255, 255, 255, 0.28);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Footer ──────────────────────────────────────────────────── */
+.login-footer {
+  margin-top: 22px;
+  text-align: center;
+}
+
+.login-footer p {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 0;
+}
+
+.footer-lock {
+  width: 13px;
+  height: 13px;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* ── Status indicator ────────────────────────────────────────── */
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .login-card {
+    padding: 32px 24px 28px;
+    border-radius: 20px;
+  }
+  .login-title { font-size: 22px !important; }
+  .floating-tag { display: none; }
+  .glow-orb-3, .glow-orb-4 { display: none; }
+}
