@@ -3,6 +3,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 // Use env var if set, otherwise derive from current hostname so LAN access works automatically
 const API_URL = import.meta.env.VITE_API_URL ?? `http://${globalThis.location.hostname}:8080`
 
+// Required when backend is behind ngrok — bypasses the browser warning interstitial
+const BACKEND_HEADERS = {
+  'Content-Type': 'application/json',
+  'ngrok-skip-browser-warning': 'true',
+}
+
 /** 50 minutes in milliseconds — refresh before Autodesk's 60-min expiry */
 const REFRESH_INTERVAL_MS = 50 * 60 * 1000
 
@@ -59,7 +65,7 @@ export function useAuth() {
     try {
       const res = await fetch(`${API_URL}/oauth/refresh`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: BACKEND_HEADERS,
         body: JSON.stringify({ refresh_token: storedRefresh }),
       })
 
@@ -117,7 +123,7 @@ export function useAuth() {
 
   // ── Login — backend generates PKCE + auth URL, frontend just redirects ──────
   const login = useCallback(async () => {
-    const res = await fetch(`${API_URL}/auth/authorize`)
+    const res = await fetch(`${API_URL}/auth/authorize`, { headers: BACKEND_HEADERS })
     if (!res.ok) throw new Error(`Failed to get auth URL: ${res.status}`)
     const { url } = await res.json()
     globalThis.location.href = url

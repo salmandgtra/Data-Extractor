@@ -14,6 +14,11 @@ import { useNavigate } from 'react-router-dom'
 
 const API_URL = import.meta.env.VITE_API_URL ?? `http://${globalThis.location.hostname}:8080`
 
+const BACKEND_HEADERS = {
+  'Content-Type': 'application/json',
+  'ngrok-skip-browser-warning': 'true',
+}
+
 export default function AuthSuccess() {
   const navigate   = useNavigate()
   const didFetch   = useRef(false)          // guard against StrictMode double-invoke
@@ -33,7 +38,7 @@ export default function AuthSuccess() {
 
     setStatus('Fetching token...')
 
-    fetch(`${API_URL}/auth/token?nonce=${nonce}`)
+    fetch(`${API_URL}/auth/token?nonce=${nonce}`, { headers: BACKEND_HEADERS })
       .then(res => {
         if (!res.ok) throw new Error(`Server returned ${res.status}`)
         return res.json()
