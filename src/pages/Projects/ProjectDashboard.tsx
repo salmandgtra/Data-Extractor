@@ -23,12 +23,9 @@ type FilterType = 'all' | 'acc' | 'bim360'
 type ProjKind = 'bim360' | 'acc' | 'default'
 
 function projectKind(p: Project): ProjKind {
-  const ext = (p.attributes.extension?.type ?? '').toLowerCase()
-  // Autodesk API values:
-  //   BIM 360 → "autodesk.bim360:Project"
-  //   ACC     → "autodesk.core:Project"
-  if (ext.includes('bim360')) return 'bim360'
-  if (ext.includes('autodesk.core') || ext.includes('autodesk.acc')) return 'acc'
+  const projectType = (p.attributes.extension?.data?.projectType as string ?? '').toUpperCase()
+  if (projectType === 'ACC')    return 'acc'
+  if (projectType === 'BIM360') return 'bim360'
   return 'default'
 }
 
@@ -134,10 +131,7 @@ export default function ProjectDashboard() {
     }
 
     fetchAllProjects()
-      .then(all => {
-        console.log('Sample project attributes:', JSON.stringify(all.slice(0, 3).map(p => p.attributes), null, 2))
-        setProjects(all)
-      })
+      .then(all => setProjects(all))
       .catch(err => setError(String(err.message)))
       .finally(() => setLoading(false))
   }, [hubId, accessToken, navigate])
