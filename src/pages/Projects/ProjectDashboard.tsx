@@ -7,7 +7,7 @@ import './ProjectDashboard.css'
 
 interface ProjectAttributes {
   name: string
-  extension?: { type?: string }
+  extension?: { type?: string; data?: Record<string, unknown> }
 }
 
 interface Project {
@@ -134,7 +134,10 @@ export default function ProjectDashboard() {
     }
 
     fetchAllProjects()
-      .then(all => setProjects(all))
+      .then(all => {
+        console.log('Sample project attributes:', JSON.stringify(all.slice(0, 3).map(p => p.attributes), null, 2))
+        setProjects(all)
+      })
       .catch(err => setError(String(err.message)))
       .finally(() => setLoading(false))
   }, [hubId, accessToken, navigate])
