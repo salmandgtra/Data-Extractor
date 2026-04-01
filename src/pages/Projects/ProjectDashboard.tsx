@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import * as XLSX from 'xlsx'
 import './ProjectDashboard.css'
@@ -23,17 +23,44 @@ type FilterType = 'all' | 'acc' | 'bim360'
 type ProjKind = 'bim360' | 'acc' | 'default'
 
 function projectKind(p: Project): ProjKind {
-  const ext = p.attributes.extension?.type ?? ''
-  if (ext.toLowerCase().includes('bim360'))       return 'bim360'
-  if (ext.toLowerCase().includes('construction')
-   || ext.toLowerCase().includes('a360'))         return 'acc'
+  const ext = (p.attributes.extension?.type ?? '').toLowerCase()
+  // Autodesk API values:
+  //   BIM 360 → "autodesk.bim360:Project"
+  //   ACC     → "autodesk.core:Project"
+  if (ext.includes('bim360')) return 'bim360'
+  if (ext.includes('autodesk.core') || ext.includes('autodesk.acc')) return 'acc'
   return 'default'
 }
 
-const KIND_ICON: Record<ProjKind, string> = {
-  bim360:  '🏗️',
-  acc:     '🏢',
-  default: '📁',
+// ACC SVG icon (Construction Cloud style)
+const ACC_ICON = (
+  <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <rect width="32" height="32" rx="6" fill="#FF6A00"/>
+    <path d="M16 5L6 26h4.5L16 13.5 21.5 26H26L16 5z" fill="white"/>
+    <path d="M11 26h10l-5-9L11 26z" fill="rgba(255,255,255,0.6)"/>
+  </svg>
+)
+
+// BIM 360 SVG icon (blue grid style)
+const BIM360_ICON = (
+  <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <rect width="32" height="32" rx="6" fill="#0696D7"/>
+    <text x="5" y="22" fontFamily="Arial" fontWeight="bold" fontSize="11" fill="white">BIM</text>
+    <text x="4" y="30" fontFamily="Arial" fontWeight="bold" fontSize="10" fill="white">360</text>
+  </svg>
+)
+
+const DEFAULT_ICON = (
+  <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <rect width="32" height="32" rx="6" fill="#6B7280"/>
+    <path d="M8 10h10l2 3h4v10H8V10z" fill="white" opacity="0.9"/>
+  </svg>
+)
+
+const KIND_ICON: Record<ProjKind, ReactElement> = {
+  bim360:  BIM360_ICON,
+  acc:     ACC_ICON,
+  default: DEFAULT_ICON,
 }
 
 const KIND_BADGE: Record<ProjKind, { label: string; cls: string }> = {
@@ -88,16 +115,28 @@ export default function ProjectDashboard() {
     if (!accessToken) { navigate('/', { replace: true }); return }
     if (!hubId) return
 
-    fetch(`https://developer.api.autodesk.com/project/v1/hubs/${hubId}/projects`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then(res => {
+    async function fetchAllProjects() {
+      const all: Project[] = []
+      let url: string | null =
+        `https://developer.api.autodesk.com/project/v1/hubs/${hubId}/projects?page[limit]=100`
+
+      while (url) {
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
         if (!res.ok) throw new Error(`API error ${res.status}: ${res.statusText}`)
-        return res.json()
-      })
-      .then(data => setProjects(data.data ?? []))
-      .catch(err  => setError(String(err.message)))
-      .finally(()  => setLoading(false))
+        const data = await res.json()
+        all.push(...(data.data ?? []))
+        // Follow next page link if present
+        url = data.links?.next?.href ?? null
+      }
+      return all
+    }
+
+    fetchAllProjects()
+      .then(all => setProjects(all))
+      .catch(err => setError(String(err.message)))
+      .finally(() => setLoading(false))
   }, [hubId, accessToken, navigate])
 
   // Filtered list

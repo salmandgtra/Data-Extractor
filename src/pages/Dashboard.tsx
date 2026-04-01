@@ -86,7 +86,7 @@ export default function Dashboard() {
           </div>
           <div>
             <span className="dash-brand-name">Autodesk</span>
-            <span className="dash-brand-product">Data Portal</span>
+            <span className="dash-brand-product">Data Portals</span>
           </div>
         </div>
 
